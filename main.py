@@ -24,6 +24,9 @@ def index():
     }
 
     if request.method=="POST":
+
+        for key, value in request.form.items():
+            print(f"{key}:{value!r}")
         pass
 
     return render_template("index.html",**context)
