@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR-CODE-STATER</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h1>QR STUDIO</h1>
+<form method="POST" action="/">
+    <label for="link_text">URL or Text:</label>
+    <input type="text" id="link_text" name="link_text" placeholder="https://example.com" required>
+    <button type="submit">Generate QR Code</button>
+</form>
+    
+    
+</body>
+</html>
