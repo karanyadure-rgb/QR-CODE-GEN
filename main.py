@@ -2,7 +2,12 @@ from flask import Flask, render_template, request
 
 app= Flask(__name__)
 
-def build_playload(form):
+def build_payload(form):
+
+    qr_type=form.get("qr_type","link")
+
+    if qr_type =="link":
+        return form.get("link_text","").strip()
 
     return ""
 
@@ -27,7 +32,9 @@ def index():
 
         for key, value in request.form.items():
             print(f"{key}:{value!r}")
-        pass
+
+        payload = build_payload(request.form)
+        print(f"payload= {payload!r}")
 
     return render_template("index.html",**context)
 
