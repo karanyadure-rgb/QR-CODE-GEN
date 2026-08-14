@@ -13,6 +13,9 @@
     <input type="text" id="link_text" name="link_text" placeholder="https://example.com" required>
     <button type="submit">Generate QR Code</button>
 </form>
+{% if image_data_url %}
+<p><img src="{{ image_data_url }}" alt="Generated QR code " width="220"></p>
+{% endif %}
     
     
 </body>
