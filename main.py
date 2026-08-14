@@ -1,7 +1,7 @@
 from io import BytesIO
 from base64 import b64encode
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request ,send_file
 import qrcode
 from qrcode.constants import ERROR_CORRECT_L,ERROR_CORRECT_H,ERROR_CORRECT_M,ERROR_CORRECT_Q
 
@@ -40,9 +40,6 @@ def build_payload(form):
         if secuirty == "nopass":
             return f"WIFI:T:nopass;S:{escape(ssid)};H:{hidden};;"
         return f"WIFI:T:{secuirty}:S:{escape(ssid)};P:{escape(password)};H:{hidden};;"
-    
-        
-
 
     return ""
 
@@ -85,8 +82,28 @@ def index():
         if payload :
             img,version = make_qr_image(payload)
             context["image_data_url"]=image_to_data_url(img)
+            context["payload"]=payload
 
     return render_template("index.html",**context)
+
+@app.route("/download")
+def download():
+    payload=request.args.get("payload","")
+    if not payload:
+        return "Missing payload", 400
+
+    img,_=make_qr_image(payload)
+    buf=BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+
+    return send_file(
+        buf,
+        mimetype="image/png",
+        as_attachment=True,
+        download_name="qr-code.png"
+    )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
