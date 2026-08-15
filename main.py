@@ -83,6 +83,9 @@ def index():
             img,version = make_qr_image(payload)
             context["image_data_url"]=image_to_data_url(img)
             context["payload"]=payload
+        else:
+            context["error"]="Please enter a URL or text to generate a code ."
+
 
     return render_template("index.html",**context)
 

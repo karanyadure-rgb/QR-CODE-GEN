@@ -18,6 +18,11 @@
 <p><a href="{{ url_for('download', payload=payload) }}">Download PNG</a></p>
 
 {% endif %}
+
+{% if error %}
+<p style="color: #B3411F;">{{error}}</p>
+    
+{% endif %}
     
     
 </body>
