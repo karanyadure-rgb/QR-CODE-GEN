@@ -1,5 +1,6 @@
 from io import BytesIO
 from base64 import b64encode
+from urllib.parse import quote
 
 from flask import Flask, render_template, request ,send_file
 import qrcode
@@ -41,7 +42,34 @@ def build_payload(form):
             return f"WIFI:T:nopass;S:{escape(ssid)};H:{hidden};;"
         return f"WIFI:T:{secuirty}:S:{escape(ssid)};P:{escape(password)};H:{hidden};;"
 
+    if qr_type == "email":
+        to=form.get("email_to","").strip()
+        if not to:
+            return ""
+        subject = form.get("email_subject","").strip()
+        body = form.get("email_body","").strip()
+        params=[]
+        if subject:
+            params.append("subject="+quote(subject))
+        if body:
+            params.append("body="+quote(body))
+        query=("?"+"&".join(params))if params else ""
+        return f"mailto:{to}{query}"
+
+    if qr_type=="phone":
+        number=form.get("phone_number").strip()
+        return f"tel:{number}" if number else ""
+
+    if qr_type == "sms":
+        number=form.get("sms_number","").strip()
+        if not number:
+            return ""
+        message = form.get("sms_message","").strip()
+        return f"SMSTO : {number}{message}"
+
+        
     return ""
+
 
 def make_qr_image(playload, fg="#0A0B0C", bg="#FFFFFF", ecc="M"):
 
