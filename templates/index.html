@@ -7,85 +7,86 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<h1>QR STUDIO</h1>
-<form method="POST" action="/">
+<div class="container">
 
-    <label for="qr_type">Type</label><br>
-    <select id="qr_type" name="qr_type" onchange="syncPanels()">
-        <option value="link">Link / Text</option>
-        <option value="wifi">Wi-fi</option>
-        <option value="email"> Email</option>
-        <option value="phone">Phone</option>
-        <option value="sms">SMS</option>
-    </select>
+    <h1>QR STUDIO</h1>
+    <p class="subtitle">Turn a link, Wi-Fi network, email, phone number, or text message into a QR code.</p>
+
+    <form method="POST" action="/">
+        <label for="qr_type">Type</label><br>
+        <select id="qr_type" name="qr_type" onchange="syncPanels()">
+            <option value="link">Link / Text</option>
+            <option value="wifi">Wi-fi</option>
+            <option value="email"> Email</option>
+            <option value="phone">Phone</option>
+            <option value="sms">SMS</option>
+        </select>
+            
+        <div class="panel" data-panel="link">
+            <label for="link_text">URL or Text:</label><br>
+            <input type="text" id="link_text" name="link_text" placeholder="https://example.com">
+        </div>
+
+        <div class="panel" data-panel="wifi" style="display:none;">
+            <label for="wifi_ssid">Network name (SSID)</label><br>
+            <input type="text" id="wifi_ssid" name="wifi_ssid"><br>
+            <label for="wifi_pass">Password</label><br>
+            <input type="text" id="wifi_pass" name="wifi_pass"><br>
+            <label for="wifi_sec">Security</label><br>
+            <select id="wifi_sec" name="wifi_sec">
+                <option value="WPA">WPA/WPA2</option>
+                <option value="WEP">WEP</option>
+                <option value="nopass">None</option>
+            </select><br>
+            <input type="checkbox" id="wifi_hidden" name=""wifi_hidden>
+            <label for="wifi_hidden">Hidden_Network</label>
+        </div>
+
+        <div class="panel" data-panel="email" style="display:none;">
+            <label for="email_to">To</label>
+            <input type="email" id="email_to" name="email_to"><br>
+            <label for="email_subject">Subject</label><br>
+            <input type="text" id="email_subject" name="eamil_subject"><br>
+            <label for="email_body">Message</label><br>
+            <textarea name="email_body" id="email_body"></textarea>
+        </div>
+
+        <div class="panel" data-panel="phone" style="display:none;">
+            <label for="phone_number">Phone number</label><br>
+            <input type="tel" id="phone_number" name="phone_number">
+        </div>
+
+        <div class="panel" data-panel="sms" style="display:none;">
+            <label for="sms_number">Phone number</label><br>
+            <input type="tel" id="sms_number" name="sms_number"><br>
+            <label for="sms_message">Message</label>
+            <textarea id="sms_message" name="sms_message"></textarea>
+        </div>
+
+        <button type="submit">Generate QR Code</button>
+    </form>
+
+    <script>
+        function syncPanels(){
+            var selected = document.getElementById('qr_type').value;
+            document.querySelectorAll('.panel').forEach(function(p){
+                p.style.display = (p.dataset.panel == selected) ? '' : 'none';
+            });
         
-    <div class="panel" data-panel="link">
-        <label for="link_text">URL or Text:</label><br>
-        <input type="text" id="link_text" name="link_text" placeholder="https://example.com">
-    </div>
+        }  
+    </script>
 
-    <div class="panel" data-panel="wifi" style="display:none;">
-        <label for="wifi_ssid">Network name (SSID)</label><br>
-        <input type="text" id="wifi_ssid" name="wifi_ssid"><br>
-        <label for="wifi_pass">Password</label><br>
-        <input type="text" id="wifi_pass" name="wifi_pass"><br>
-        <label for="wifi_sec">Security</label><br>
-        <select id="wifi_sec" name="wifi_sec">
-            <option value="WPA">WPA/WPA2</option>
-            <option value="WEP">WEP</option>
-            <option value="nopass">None</option>
-        </select><br>
-        <input type="checkbox" id="wifi_hidden" name=""wifi_hidden>
-        <label for="wifi_hidden">Hidden_Network</label>
-    </div>
+    {% if image_data_url %}
+        <div class="result">
+            <img src="{{ image_data_url }}" alt="Generated QR code " width="220">
+            <a class="download-btn" href="{{ url_for('download', payload=payload) }}">Download PNG</a>
+        </div>
+    {% endif %}
 
-    <div class="panel" data-panel="email" style="display:none;">
-        <label for="email_to">To</label>
-        <input type="email" id="email_to" name="email_to"><br>
-        <label for="email_subject">Subject</label><br>
-        <input type="text" id="email_subject" name="eamil_subject"><br>
-        <label for="email_body">Message</label><br>
-        <textarea name="email_body" id="email_body"></textarea>
-    </div>
-
-    <div class="panel" data-panel="phone" style="display:none;">
-        <label for="phone_number">Phone number</label><br>
-        <input type="tel" id="phone_number" name="phone_number">
-    </div>
-
-    <div class="panel" data-panel="sms" style="display:none;">
-        <label for="sms_number">Phone number</label><br>
-        <input type="tel" id="sms_number" name="sms_number"><br>
-        <label for="sms_message">Message</label>
-        <textarea id="sms_message" name="sms_message"></textarea>
-    </div>
-
-    <button type="submit">Generate QR Code</button>
-</form>
-
-<script>
-    function syncPanels(){
-        var selected = document.getElementById('qr_type').value;
-        document.querySelectorAll('.panel').forEach(function(p){
-            p.style.display = (p.dataset.panel == selected) ? '' : 'none';
-        });
+    {% if error %}
+        <p class="error">{{ error }}</p>    
+    {% endif %}
     
-    }  
-</script>
-
-
-
-{% if image_data_url %}
-<p><img src="{{ image_data_url }}" alt="Generated QR code " width="220"></p>
-<p><a href="{{ url_for('download', payload=payload) }}">Download PNG</a></p>
-
-{% endif %}
-
-{% if error %}
-<p style="color: #B3411F;">{{error}}</p>
-    
-{% endif %}
-    
-    
+</div> 
 </body>
 </html>
