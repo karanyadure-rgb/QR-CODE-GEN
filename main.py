@@ -5,16 +5,16 @@ from urllib.parse import quote
 from flask import Flask, render_template, request ,send_file
 import qrcode
 from qrcode.constants import ERROR_CORRECT_L,ERROR_CORRECT_H,ERROR_CORRECT_M,ERROR_CORRECT_Q
+from PIL import Image
+
+app= Flask(__name__)
 
 ECC_MAP={
     "M":ERROR_CORRECT_M,
     "L":ERROR_CORRECT_L,
     "H":ERROR_CORRECT_H,
     "Q":ERROR_CORRECT_Q
-
 }
-
-app= Flask(__name__)
 
 def build_payload(form):
 
@@ -65,13 +65,15 @@ def build_payload(form):
         if not number:
             return ""
         message = form.get("sms_message","").strip()
-        return f"SMSTO : {number}{message}"
-
+        return f"SMSTO:{number}:{message}"
         
     return ""
 
 
-def make_qr_image(playload, fg="#0A0B0C", bg="#FFFFFF", ecc="M"):
+def make_qr_image(playload, fg="#0A0B0C", bg="#FFFFFF", ecc="M", logo_file=None):
+
+    if logo_file:
+        ecc="H"
 
     qr=qrcode.QRCode(
         version=None,
@@ -82,6 +84,15 @@ def make_qr_image(playload, fg="#0A0B0C", bg="#FFFFFF", ecc="M"):
     qr.add_data(playload)
     qr.make(fit=True)
     img= qr.make_image(fill_color=fg, back_color=bg).convert("RGB")
+
+    if logo_file:
+        logo=Image.open(logo_file).convert("RGBA")
+        qr_w ,qr_h = img.size
+        logo_size = qr_w // 5
+        logo = logo.resize((logo_size,logo_size))
+        position = ((qr_w-logo_size)//2,(qr_h-logo_size)//2)
+        img.paste(logo, position, mask=logo)
+
     return img,qr.version
 
 def image_to_data_url(img):
@@ -96,6 +107,7 @@ def index():
     "qr_type": "link",
     "form_values": {},
     "image_data_url": None,
+    "payload":None,
     "error": None,
     }
 
@@ -108,7 +120,12 @@ def index():
         print(f"payload= {payload!r}")
 
         if payload :
-            img,version = make_qr_image(payload)
+
+            logo_file = request.files.get("logo")
+            if not logo_file or logo_file.filename =="":
+                logo_file = None
+
+            img,version = make_qr_image(payload,logo_file=logo_file)
             context["image_data_url"]=image_to_data_url(img)
             context["payload"]=payload
         else:
