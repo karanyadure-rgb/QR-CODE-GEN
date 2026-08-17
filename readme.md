@@ -4,10 +4,6 @@ A Flask web app that generates QR codes for links, Wi-Fi networks, emails,
 phone numbers, and SMS messages — built from a bare scaffold, one feature a
 day, as a self-directed exercise in server-side web development.
 
-## Live Demo
-
-🔗 _add your deployed URL here after Day 12_
-
 ## Features
 
 - **Five QR types**: URL/text, Wi-Fi (with hidden-network support), email,
